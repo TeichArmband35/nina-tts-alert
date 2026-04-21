@@ -30,8 +30,8 @@ Note: Everything should be installed in the **same directory** (./server)
 - `exit`: Exits the program, so you don't have to close and re-open the console
 - `napi: nop`: Switches the NINA API to the normal NINA API
 - `napi: test`: Switches the NINA API to the test API
-- `lw: r`: Resets the variable letzteWarnung (i.e. **resets the last warning**)
-- `lw: p`: Prints the variable letzteWarnung (i.e. **prints the last warning**)
+- `lw: r`: Resets the variable letzeWarnung (i.e. **resets the last warning**)
+- `lw: p`: Prints the variable letzeWarnung (i.e. **prints the last warning**)
 - `napi: p`: Prints which NINA API is currently in use
 - `naaf: ak`: Activates the automatic fetch request for the NINA API (i.e. **activates the real-time warning system**)
 - `naaf: dak`: Deactivates the automatic fetch request for the NINA API (i.e. **deactivates the real-time warning system**)
