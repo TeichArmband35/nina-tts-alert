@@ -50,7 +50,7 @@ This gong is included in the repository.
 - `gong_moderat.mp3`: Plays if the severity of the warning is moderate
 - `gong_schwer_extreme.mp3`: Plays if the severity of the warning is severe or extreme
 
-Note: Inspired by C.A.S.S.I.E., a facility AI from a video game.
+> Note: Inspired by C.A.S.S.I.E., a facility AI from a video game.
 
 ### RAM
 The RAM of the program stores up to 9 warnings to prevent the TTS system from looping. This would occur if 2 warnings were present and the filtering system only checked against the last warning.
