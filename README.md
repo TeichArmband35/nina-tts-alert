@@ -11,6 +11,8 @@ Due to this project featuring the BBK, all console output (including commands an
 - Real-time warnings (output: audio; German TTS voice — interval check or manual fetch request)
 - Configurable fetch request for warnings (for areas defined by the official ARS code; configurable via console commands)
 - Console log & commands
+- Sorting by warning severity
+- Warning schematic
 
 ## Running the Project
 Note: Everything should be installed in the **same directory** (./server)
