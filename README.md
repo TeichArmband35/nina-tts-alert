@@ -47,7 +47,10 @@ The *test* API is also checking for Warnings in the Area selected by the ARS Cod
 Code of the test API. Change the API by using the Commands in the Console when the programm is running and do a manual fetch Request).
 ### Naaf
 The naaf (NINA Automatische Abfrage, i.e. NINA Automatic Fetch System) activates or deactivates the *Real Time Warning System*. This Setting once enabled, checks every 10sec for a Warning for the selected API (Check the Console Commands on how to enable / disable / change the API).
+The naaf can also be do a one time fetch request (naaf: frq; Learn more about naaf: frq in Console Commands).
 ## How it all Works
 The program will check for Warnings in the Area, either by a manual fetch request or by the naaf if activated (Learn more about the Naaf in the Chapter "Meanings of unclear Stuff", chapter "Naaf")
 Once a Warning has been fetched for the Area (i.e. the BBK made a Warning for the selected Area), the Programm will fetch the Description and insert it in the Standard Warning Schemetic. After the full text has been generated, the TTS Programm will convert the Text into an .wav File.
 FFmpeg will now merge this .wav file with the right Annoucement Gong. Then the ready to play Audio file will be saved as output.mp3.
+## Examples of Warnings
+[insert here Video]
