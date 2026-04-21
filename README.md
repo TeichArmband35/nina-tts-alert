@@ -33,3 +33,5 @@ Note: Everything should be installed in the **same Directory** (./server)
   - `ram: c`: Clears the RAM of the Program 
   - `ram: p`: Prints the RAM of the Program
   - `msg: ct`: Tests the Coloring of Messages (i.e. Tests if Errors are displayed red...)
+### Meanings of unclear Stuff
+- RAM: The RAM of the Program saves up to 9 Warnings to prevent looping of the TTS System
