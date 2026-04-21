@@ -67,6 +67,9 @@ Once a warning has been fetched for the area (i.e. the BBK has issued a warning 
 FFmpeg then merges this .wav file with the appropriate announcement gong. The final audio file is saved as output.mp3.
 ## Configuration
 ### ARS
-[The Official Municipal Code (AGS), formerly also known as the Official Municipal Identification Number (GKZ), Municipal Identification Number, or Municipal Code Number, is a numerical sequence used to identify politically independent cities, municipalities, or unincorporated areas in Germany.](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel#Regionalschl%C3%BCssel) This system is used by the BBK (stated on the Website: [nina.api.bund.dev](https://nina.api.bund.dev/))
+[The Official Municipal Code (AGS), formerly also known as the Official Municipal Identification Number (GKZ), Municipal Identification Number, or Municipal Code Number, is a numerical sequence used to identify politically independent cities, municipalities, or unincorporated areas in Germany.](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel#Regionalschl%C3%BCssel) This system is used by the BBK (stated on the Website: [nina.api.bund.dev](https://nina.api.bund.dev/)). You can find the desired ARS Code for your city [here](https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json).
+### Change of the API
+If the ARS is for the normal API, copy & paste it in the Variable `ARSkeintest` in `server.js` (e.g. with WebStorm); If the ARS is for the test API, coppy & paste it in the Variable `ARStest`in `server.js` (e.g. with WebStorm). 
+After saving, the ARS code should have changed for the selected API. You can check it by changing to that API (while the programming is running) utilizing `napi` (Learn more about napi: Meanings of Unclear Terms -> Normal and Test API || Console Commands -> `napi`).
 ## Examples of Warnings
 [insert video here]
