@@ -59,6 +59,10 @@ The RAM of the program stores up to 9 warnings to prevent the TTS system from lo
 
 TTS system outputs the first warning → program checks for another warning that isn't the last warning → TTS system outputs the second warning → program checks for another warning that isn't the last warning → TTS system outputs the first warning → **LOOP**
 
+> Note: The RAM cache is temporary and will be cleared when the program exits 
+> (via the `exit` command or by closing the console). Previously processed warnings 
+> may be read out again after a restart (if they are still active).
+
 ### Normal and Test API
 The *normal* API checks for warnings in the area selected by the ARS code. This API should not be changed once set up (it is the API that checks for warnings in, for example, your area. It should only be changed if you move to a different location.)
 
