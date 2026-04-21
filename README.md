@@ -98,8 +98,14 @@ After saving, the ARS code should have updated for the selected API. You can ver
 
 ### Important Notes on Configuration
 As of now (2026-04-24 || Format: YYYY-MM-DD), the program does not have many configuration options (e.g. for English warnings).
+
 ## Examples of Warnings
-[insert video here]
+#### MP4 
+https://github.com/TeichArmband35/nina-tts-alert/blob/main/test/warnung.mp4
+
+#### MP3 (output.mp3)
+https://github.com/TeichArmband35/nina-tts-alert/blob/main/test/output.mp3
+
 ## Legal Notice
 This project is intended for **private, non-commercial use only** (e.g. home intercom systems).
 The author is not responsible for any misuse of this software.
