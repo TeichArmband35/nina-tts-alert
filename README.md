@@ -33,5 +33,17 @@ Note: Everything should be installed in the **same Directory** (./server)
   - `ram: c`: Clears the RAM of the Program 
   - `ram: p`: Prints the RAM of the Program
   - `msg: ct`: Tests the Coloring of Messages (i.e. Tests if Errors are displayed red...)
-### Meanings of unclear Stuff
-- RAM: The RAM of the Program saves up to 9 Warnings to prevent looping of the TTS System
+## Meanings of unclear Stuff
+### RAM 
+The RAM of the Programm saves up to 9 Warnings to prevent looping of the TTS System. This would happen if 2 Warnings where present and the Filtering System Checks only for the Last Warning.
+
+**Example with 2 Warnings:**
+
+TTS System outputs the first warning --> Programm Checks for another Warning that isnt the Last Warning --> TTS System outputs second Warning --> Programm Checks for another Warning that isnt the Last Warning --> TTS System outputs the first warning --> **LOOP**
+
+### Normal and Test API
+The *normal* API is checking for Warnings in the Area selected by the ARS Code. This API shouldnt be changed once SetUp (you can always change it; this is the API that checks for Warnings for example where you live. It shouldnt be changed only if you move to another Place as in an example).
+The *test* API is also checking for Warnings in the Area selected by the ARS Code.. This API should be changed to a place where a known Warning has been stated to test the System if it works (Check with the NINA App where a Warning for a City is. Then change the ARS
+Code of the test API. Change the API by using the Commands in the Console when the programm is running and do a manual fetch Request).
+###
+
