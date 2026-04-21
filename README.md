@@ -82,3 +82,8 @@ After saving, the ARS code should have updated for the selected API. You can ver
 As of now (2026-04-24 || Format: YYYY-MM-DD), the program does not have many configuration options (e.g. for English warnings).
 ## Examples of Warnings
 [insert video here]
+## Legal Notice
+This project is intended for **private, non-commercial use only** (e.g. home intercom systems).
+The author is not responsible for any misuse of this software.
+By using this project, you agree to comply with all applicable local laws and regulations.
+This project is not affiliated with, endorsed by, or connected to the BBK or any government agency.
