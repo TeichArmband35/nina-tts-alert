@@ -45,5 +45,9 @@ TTS System outputs the first warning --> Programm Checks for another Warning tha
 The *normal* API is checking for Warnings in the Area selected by the ARS Code. This API shouldnt be changed once SetUp (you can always change it; this is the API that checks for Warnings for example where you live. It shouldnt be changed only if you move to another Place as in an example).
 The *test* API is also checking for Warnings in the Area selected by the ARS Code.. This API should be changed to a place where a known Warning has been stated to test the System if it works (Check with the NINA App where a Warning for a City is. Then change the ARS
 Code of the test API. Change the API by using the Commands in the Console when the programm is running and do a manual fetch Request).
-###
-
+### Naaf
+The naaf (NINA Automatische Abfrage, i.e. NINA Automatic Fetch System) activates or deactivates the *Real Time Warning System*. This Setting once enabled, checks every 10sec for a Warning for the selected API (Check the Console Commands on how to enable / disable / change the API).
+## How it all Works
+The program will check for Warnings in the Area, either by a manual fetch request or by the naaf if activated (Learn more about the Naaf in the Chapter "Meanings of unclear Stuff", chapter "Naaf")
+Once a Warning has been fetched for the Area (i.e. the BBK made a Warning for the selected Area), the Programm will fetch the Description and insert it in the Standard Warning Schemetic. After the full text has been generated, the TTS Programm will convert the Text into an .wav File.
+FFmpeg will now merge this .wav file with the right Annoucement Gong. Then the ready to play Audio file will be saved as output.mp3.
