@@ -23,13 +23,13 @@ Note: Everything should be installed in the **same Directory** (./server)
 ## Console Commands
   - `exit`: Exits the Program, so you dont have to close the Console and Re-open it
   - `napi: nop`: Changes the NINA API to the normal NINA API
-  - "napi: test",
-  "lw: r",
-  "lw: p",
-  "napi: p",
-  "naaf: ak",
-  "naaf: dak",
-  "naaf: frq",
-  "ram: c",
-  "ram: p",
-  "msg: ct",
+  - `napi: test`: Changes the NINA API to the test API
+  - `lw: r`: Resets the Variable letzeWarnung (i.e. it **Resets the Last Warning**)
+  - `lw: p`: Prints the Variable letzeWarnung (i.e. it **Prints the Last Warning**)
+  - `napi: p`: Prints which NINA API is in use
+  - `naaf: ak`: Activates the Automatic Fetch Request for the NINA API (i.e. **Activates the Real Time Warning System**)
+  - `naaf: dak`: De-Activates the Automatic Fetch Request for the NINA API (i.e. **Deactivates the Real Time Warning System**)
+  - ´naaf: frq´: Starts a manual Fetch Request for the NINA API
+  - `ram: c`: Clears the RAM of the Program 
+  - `ram: p`: Prints the RAM of the Program
+  - `msg: ct`: Tests the Coloring of Messages (i.e. Tests if Errors are displayed red...)
