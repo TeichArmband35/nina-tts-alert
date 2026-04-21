@@ -44,6 +44,14 @@ Note: Everything should be installed in the **same directory** (./server)
 
 ## Meanings of Unclear Terms
 
+### Gong
+The gong is an attention sound that plays before the warning is read by the TTS system. 
+This gong is included in the repository.
+- `gong_moderat.mp3`: Plays if the severity of the warning is moderate
+- `gong_schwer_extreme.mp3`: Plays if the severity of the warning is severe or extreme
+
+Note: Inspired by C.A.S.S.I.E., a facility AI from a video game.
+
 ### RAM
 The RAM of the program stores up to 9 warnings to prevent the TTS system from looping. This would occur if 2 warnings were present and the filtering system only checked against the last warning.
 
@@ -57,9 +65,15 @@ The *normal* API checks for warnings in the area selected by the ARS code. This 
 The *test* API also checks for warnings in an area selected by the ARS code. This API should be pointed to a location where a known warning has been issued, in order to test whether the system works correctly. (Check the NINA app to find a city with an active warning, then update the ARS code of the test API. Switch APIs using the console commands while the program is running, then perform a manual fetch request.)
 
 ### Naaf
-The naaf (NINA Automatische Abfrage, i.e. NINA Automatic Fetch System) activates or deactivates the *real-time warning system*. Once enabled, it checks every 10 seconds for a warning from the selected API (see console commands on how to enable, disable, or change the API).
+The naaf (NINA Automatische Abfrage, i.e. NINA Automatic Fetch System) activates or 
+deactivates the *real-time warning system*. Once enabled, it checks every 10 seconds for 
+a warning from the selected API (see console commands on how to enable, disable, or 
+change the API).
 
-The naaf can also perform a one-time fetch request (`naaf: frq` — see Console Commands for more details).
+The naaf can also perform a one-time fetch request (`naaf: frq` — see Console Commands 
+for more details).
+
+> Note: The server must be running 24/7 for the real-time warning system to work.
 
 ## How It All Works
 The program checks for warnings in the selected area, either via a manual fetch request or automatically via the naaf if activated (see "Meanings of Unclear Terms" → "Naaf").
