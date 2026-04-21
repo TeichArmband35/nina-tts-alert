@@ -1,8 +1,7 @@
 
-// Config, ARS für Landkreis hier eingeben:
-const ARStest = []; // ARS hier einfügen für test; Das ist nicht der normale Bereich, hier kann man den ARS reinmachen wo es gerade eine Warnung gibt (nina app nachschauen) um zu testen ob das system funktioniert
-const ARSkeintest = []; // ARS hier einfügen; Hier sollte Standard mäßig der Ort sein wo man lebt bzw. wo man warnungen erhalten möchte falls was oassuert.
-
+// CONFIG
+const ARStest = "064110000000";
+const ARSkeintest = "096790000000";
 
 const RED = "\x1b[31m"; // Rot
 const YELLOW = "\u001b[38;2;253;182;0m" // Gelb für Warnungen
@@ -45,8 +44,8 @@ const { WarnungsNarchichtErstellen: buildTTS } = require("./warnungstextmaker");
 
 const BASE_URL = "https://warnung.bund.de/api31";
 
-const VHHnina = `${BASE_URL}/dashboard/096790000000.json`;
-const TestNINA = `${BASE_URL}/dashboard/064110000000.json`;
+const VHHnina = `${BASE_URL}/dashboard/${ARSkeintest}.json`;
+const TestNINA = `${BASE_URL}/dashboard/${ARStest}.json`;
 const InfoNINA = `${BASE_URL}/warnings/`;
 
 var highAlerts = [];
@@ -65,7 +64,7 @@ function ramP() {
 function letzeWarnungReset() {
   letzeWarnung = [];
   log(
-    `Letze Warnung gelöscht, letzeWarnung: ${JSON.stringify(letzeWarnung)}`,
+    `Letzte Warnung gelöscht, letzteWarnung: ${JSON.stringify(letzeWarnung)}`,
     3,
   );
 }
@@ -109,7 +108,7 @@ function warnRAMEntCheck(text) {
 }
 
 async function letzeWarnungPrint() {
-  await log(`Letze Warnung = ${JSON.stringify(letzeWarnung)}`, 3);
+  await log(`Letzte Warnung = ${JSON.stringify(letzeWarnung)}`, 3);
 }
 
 const ServerCMDs = [
