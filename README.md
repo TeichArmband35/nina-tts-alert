@@ -15,7 +15,6 @@ Due to this project featuring the BBK, all console output (including commands an
 - Warning schematic
 
 ## Running the Project
-Note: Everything should be installed in the **same directory** (./server)
 
 - Install Node.js
 - Install Python 3.10.13
@@ -27,6 +26,7 @@ Note: Everything should be installed in the **same directory** (./server)
 - Run `node server.js`
 
 → The program should now be running.
+> Note: Everything should be installed in the **same directory** (./server)
 
 ## Console Commands
 - `exit`: Exits the program, so you don't have to close and re-open the console
