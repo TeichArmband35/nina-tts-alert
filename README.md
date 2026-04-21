@@ -65,6 +65,8 @@ The program checks for warnings in the selected area, either via a manual fetch 
 Once a warning has been fetched for the area (i.e. the BBK has issued a warning for the selected area), the program fetches the description and inserts it into the standard warning schematic. After the full text has been generated, the TTS program converts the text into a .wav file.
 
 FFmpeg then merges this .wav file with the appropriate announcement gong. The final audio file is saved as output.mp3.
-
+## Configuration
+### ARS
+[The Official Municipal Code (AGS), formerly also known as the Official Municipal Identification Number (GKZ), Municipal Identification Number, or Municipal Code Number, is a numerical sequence used to identify politically independent cities, municipalities, or unincorporated areas in Germany.](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel#Regionalschl%C3%BCssel) This system is used by the BBK (stated on the Website: [nina.api.bund.dev](https://nina.api.bund.dev/))
 ## Examples of Warnings
 [insert video here]
