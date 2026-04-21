@@ -50,7 +50,7 @@ The RAM of the program stores up to 9 warnings to prevent the TTS system from lo
 TTS system outputs the first warning → program checks for another warning that isn't the last warning → TTS system outputs the second warning → program checks for another warning that isn't the last warning → TTS system outputs the first warning → **LOOP**
 
 ### Normal and Test API
-The *normal* API checks for warnings in the area selected by the ARS code. This API should not be changed once set up (it is the API that checks for warnings in, for example, your area). It should only be changed if you move to a different location.
+The *normal* API checks for warnings in the area selected by the ARS code. This API should not be changed once set up (it is the API that checks for warnings in, for example, your area. It should only be changed if you move to a different location.)
 
 The *test* API also checks for warnings in an area selected by the ARS code. This API should be pointed to a location where a known warning has been issued, in order to test whether the system works correctly. (Check the NINA app to find a city with an active warning, then update the ARS code of the test API. Switch APIs using the console commands while the program is running, then perform a manual fetch request.)
 
