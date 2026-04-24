@@ -491,7 +491,7 @@ var timer2 = 0; // 1 min: timer2 = 1
 async function WarnungIssuedTimer() {
     if (!WarnungIssued) return;
     if (timer >= 6) {
-        timer == 0;
+        timer = 0;
         timer2++;
     }
     if (timer2 >= 5) {
