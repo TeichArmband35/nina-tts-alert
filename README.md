@@ -109,7 +109,7 @@ After a warning has been processed, the TTS system will not process any other wa
 for 5 minutes. This cooldown can only be bypassed by the TTS Override.
 
 ### TTS Force
-The TTS Force skips all checks in the `playTTSQueue` function. **Use with caution** — 
+The TTS Force skips all checks in the `playTTSQueue` function. **Use with caution!**
 this will bypass:
 - Loop prevention
 - Previously processed warning checks
