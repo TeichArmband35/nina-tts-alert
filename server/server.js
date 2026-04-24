@@ -494,8 +494,9 @@ async function WarnungIssuedTimer() {
         timer == 0;
         timer2++;
     }
-    if (timer >= 5) {
+    if (timer2 >= 5) {
         WarnungIssued = false
+        timer2 = 0;
     }
     timer++;
 }
