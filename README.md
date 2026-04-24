@@ -110,7 +110,7 @@ for 5 minutes. This cooldown can only be bypassed by the TTS Override.
 
 ### TTS Force
 The TTS Force skips all checks in the `playTTSQueue` function. **Use with caution!**
-this will bypass:
+This will bypass:
 - Loop prevention
 - Previously processed warning checks
 - The TTS-already-running check
