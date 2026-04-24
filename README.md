@@ -91,6 +91,8 @@ FFmpeg then merges this .wav file with the appropriate announcement gong. The fi
 ### ARS
 [The Official Municipal Code (AGS), formerly also known as the Official Municipal Identification Number (GKZ), Municipal Identification Number, or Municipal Code Number, is a numerical sequence used to identify politically independent cities, municipalities, or unincorporated areas in Germany.](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel#Regionalschl%C3%BCssel) This system is used by the BBK (as stated on the website: [nina.api.bund.dev](https://nina.api.bund.dev/)). You can find the ARS code for your city [here](https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json).
 
+> Note: The last 7 Digits must be replaced by "0"
+
 ### Change of the API
 If the ARS code is for the normal API, copy & paste it into the variable `ARSkeintest` in `server.js` (e.g. with WebStorm). If the ARS code is for the test API, copy & paste it into the variable `ARStest` in `server.js` (e.g. with WebStorm).
 
