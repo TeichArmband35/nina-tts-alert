@@ -362,7 +362,7 @@ async function InfoZurWarnung(AlertID) {
 }
 
 function NINAautoAbfrageStarten() {
-    NINAAbfrage = setInterval(() => ninaAbfrageFetch(), 10000);
+    NINAAbfrage = setInterval(() => ninaAbfrageFetch(), WarnungIssuedTimer(), 10000);
 }
 
 function NINAautoAbfrageStop() {
