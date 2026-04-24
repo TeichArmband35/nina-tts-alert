@@ -108,6 +108,9 @@ the current one has been issued for the area. It can also be activated manually
 After a warning has been processed, the TTS system will not process any other warnings 
 for 5 minutes. This cooldown can only be bypassed by the TTS Override.
 
+> Note: The TTS cooldown requires naaf to be active. Without naaf, the cooldown 
+> will not count down.
+
 ### TTS Force
 The TTS Force skips all checks in the `playTTSQueue` function. **Use with caution!**
 This will bypass:
