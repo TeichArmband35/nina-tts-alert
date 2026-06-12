@@ -231,14 +231,6 @@ To use this program for an intercom system you will first need to host the progr
 to allow requests from the local network. The second step is to build an "intercom node", this contains a loudspeaker, `esp32` and everything else you need for playing an audio file through a loudspeaker.
 As of the third step, you will have to program the `esp32` so that it will automatically fetch `localhost:`[Insert here the port the Express server is using]`/server/nina/audio/Warnungen`. If `neueWarnung = true` and `datum` is not the last logged date, make the esp32 use `localhost:`[Insert here the port the Express server is using]`/server/nina/audio/Warnungen/Download` to download the output.mp3 file. In the last step, program the esp32 to automatically play this file. That's it. Everything else is handled server side.
 
-## Examples of Warnings
-
-#### MP4
-https://github.com/TeichArmband35/nina-tts-alert/blob/main/test/warnung.mp4
-
-#### MP3 (output.mp3)
-https://github.com/TeichArmband35/nina-tts-alert/blob/main/test/output.mp3
-
 ## Legal Notice
 This project is intended for **private, non-commercial use only** (e.g. home intercom systems).
 The author is not responsible for any misuse of this software.
