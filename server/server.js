@@ -1,10 +1,121 @@
 // CONFIG
-const ARStest = "066350000000";
-const ARSkeintest = "096790000000";
+const ARStest = "Insert ARS code for test API in here";
+const ARSkeintest = "Insert ARS code for normal API in here";
+var port = "3000";
+const url = `http://localhost:${port}/server/nina/status/push`;
+const url2 = `http://localhost:${port}/server/nina/status/online/push`;
+const url3 = `http://localhost:${port}/server/nina/tts/push`;
+var serverStatusonline = true;
+var offtts = true;
+
+const hash = "Insert here your first password";
+const hash2 = "Insert here your second password";
+const hash3 = "Insert here your third password";
+
+// no config after this point, keine config nach diesem punkt lol
+
+const logs = {
+    fatalerrs: [],
+    errs: [],
+    warnings: [],
+    token: hash,
+}
+
+async function serverStatusUpdate() {
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(logs)
+        });
+
+        if (!response.ok) {
+            return console.log("[ERROR]: Netzwerk FEHLER!")
+        }
+
+        const data = await response.json()
+        await log(data, 3, false);
+
+    } catch (err) {
+        console.error("ExpressServer nicht erreichbar:", err);
+    }
+}
+
+async function serverStatus() {
+
+    const online = {
+        online: serverStatusonline,
+        token: hash2,
+    }
+
+    try {
+        const response = await fetch(url2, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(online)
+        });
+        if (!response.ok) {return console.log("[ERROR]: Netzwerk FEHLER!")}
+        const data = await response.json()
+        await log(data, 3, false);
+
+    } catch (err) {
+        console.error("ExpressServer nicht erreichbar:", err);
+    }
+}
+
+async function ttsStatus(transcript, severity, date, title) {
+
+    const tts = {
+       transcript: transcript,
+        severity: severity,
+        date: date,
+        title: title,
+        off: offtts,
+        token: hash3,
+    }
+
+    try {
+        const response = await fetch(url3, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tts)
+        });
+        if (!response.ok) {return console.log("[ERROR]: Netzwerk FEHLER!")}
+        const data = await response.json()
+        await log(data, 3, false);
+        console.log(JSON.stringify(tts));
+
+    } catch (err) {
+        console.error("ExpressServer nicht erreichbar:", err);
+    }
+}
+
+
+async function pushLogInLogs(msg, type, override) {
+    const safeMsg = (msg instanceof Error) ? (msg.stack || msg.message)
+        : (typeof msg === 'object') ? JSON.stringify(msg)
+            : String(msg);
+
+    if (type === "error") {
+        logs.errs.push(safeMsg);
+    } else if (type === "warnung") {
+        logs.warnings.push(safeMsg);
+    } else if (type === "fatalerror") {
+        logs.fatalerrs.push(safeMsg);
+        if (!override) {
+            await serverStatusUpdate();
+            await serverStatus();
+            process.exit(5);
+        }
+    }
+    await serverStatusUpdate();
+    await serverStatus();
+}
+
 
 const RED = "\x1b[31m"; // Rot
-const YELLOW = "\u001b[38;2;253;182;0m" // Gelb für Warnungen
-const RESET = "\x1b[0m"; // Zurücksetzen der Farbe
+const YELLOW = "\u001b[38;2;253;182;0m" // Gelb f�r Warnungen
+const RESET = "\x1b[0m"; // Zur�cksetzen der Farbe
 
 const ErrorWarnung = RED + "[ERROR]:";
 const WarnungWarnung = YELLOW + "[WARNUNG]:";
@@ -12,13 +123,19 @@ const Info = RESET + "[INFO]:";
 const Debug = RESET + "[DEBUG]:";
 var WarnungIssued = false;
 
-async function log(msg, type) {
+async function log(msg, type, fatal) {
     var time = new Date().toISOString();
     if (type == 1) {
         console.log(`\x1b[35m${time}\x1b[0m ${ErrorWarnung} ${msg} ${RESET}`);
+        if (!fatal) {
+            await pushLogInLogs(msg, "error");
+        } else {
+            await pushLogInLogs(msg, "fatalerror");
+        }
     }
     if (type == 2) {
         console.log(`\x1b[35m${time}\x1b[0m ${WarnungWarnung} ${msg} ${RESET}`);
+        await pushLogInLogs(msg, "warnung");
     }
     if (type == 3) {
         console.log(`\x1b[35m${time}\x1b[0m ${Info} ${msg} ${RESET}`);
@@ -36,7 +153,7 @@ async function testColors() {
 }
 
 function newDate2() {
-    return (date = new Date());
+    return (date = new Date().toISOString());
 }
 
 const tts = require("./warnungtts");
@@ -58,6 +175,8 @@ var useOfNINA = 1;
 var TTSoverride = false;
 var ttsForce = false;
 
+var timer2 = 0; // 1 min: timer2 = 1
+
 function ramP() {
     date = new Date();
     log(`RAM-Print ak, output = ${JSON.stringify(ram)}`, 3);
@@ -66,7 +185,7 @@ function ramP() {
 function letzeWarnungReset() {
     letzeWarnung = [];
     log(
-        `Letzte Warnung gelöscht, letzteWarnung: ${JSON.stringify(letzeWarnung)}`,
+        `Letzte Warnung gel�scht, letzteWarnung: ${JSON.stringify(letzeWarnung)}`,
         3,
     );
 }
@@ -87,8 +206,8 @@ async function ramClearen() {
     for (let i = 1; i <= 9; i++) {
         ram[`RamSpeicher${i}`] = [];
 
-        if (JSON.stringify(ram[`RamSpeicher${i}`]) == "") {
-            return await log("Fehler - RAM ist LEER");
+        if (ram[`RamSpeicher${i}`].length !== 0) {
+            await log(`Fehler; RAM ist nicht leer nach clear`, 1, true);
         }
 
         await log(
@@ -133,7 +252,7 @@ const ServerCMDs = [
 ];
 console.log(
     (date = new Date()),
-    "[INFO]: Verfügbare Server-Befehle sind:",
+    "[INFO]: Verf�gbare Server-Befehle sind:",
     ServerCMDs,
 );
 const readline = require("readline");
@@ -145,68 +264,70 @@ const rl = readline.createInterface({
 });
 
 var conformation = false;
-rl.on("line", (input) => {
+rl.on("line", async (input)  => {
     if (input === ServerCMDs[0]) {
-        log("Server wird Heruntergefahren", 3);
+        log("Server wird Heruntergefahren", 3, false);
+        serverStatusonline = false;
+        await serverStatus();
         process.exit();
     } else if (input === ServerCMDs[1]) {
         useOfNINA = 0;
-        log(`NINA Check API wird geändert zu: ${useofNINAa[useOfNINA]}`, 3);
+        log(`NINA Check API wird ge�ndert zu: ${useofNINAa[useOfNINA]}`, 3, false);
     } else if (input === ServerCMDs[2]) {
         useOfNINA = 1;
-        log(`NINA Check API wird geändert zu: ${useofNINAa[useOfNINA]}`, 3);
+        log(`NINA Check API wird ge�ndert zu: ${useofNINAa[useOfNINA]}`, 3, false);
     } else if (input == ServerCMDs[3]) {
         letzeWarnungReset();
     } else if (input == ServerCMDs[4]) {
-        letzeWarnungPrint();
+        letzeWarnungPrint();serverStatusonline = true;
     } else if (input == ServerCMDs[5]) {
-        log(`NINA Check API in benutzung: ${useofNINAa[useOfNINA]}`, 3);
+        log(`NINA Check API in benutzung: ${useofNINAa[useOfNINA]}`, 3, false);
     } else if (input == ServerCMDs[6]) {
-        log("Auto NINA Abfrage gestartet", 3);
+        log("Auto NINA Abfrage gestartet", 3, false);
         NINAautoAbfrageStarten();
     } else if (input == ServerCMDs[7]) {
-        log("Auto NINA Abfrage gestoppt", 3);
+        log("Auto NINA Abfrage gestoppt", 3, false);
         NINAautoAbfrageStop();
     } else if (input == ServerCMDs[8]) {
-        log("NINA Abfrage - Force Request", 3);
+        log("NINA Abfrage - Force Request", 3, false);
         ninaAbfrageFetch();
     } else if (input == ServerCMDs[9]) {
-        log("RAMClearer START", 4);
+        log("RAMClearer START", 4, false);
         ramClearen();
     } else if (input == ServerCMDs[10]) {
-        log("RAMPrinter CALL", 4);
+        log("RAMPrinter CALL", 4, false);
         ramP();
     } else if (input == ServerCMDs[11]) {
         testColors();
     } else if (input == ServerCMDs[12]) {
         TTSoverride = true;
-        log(`TTS Override = ${TTSoverride}`, 4)
+        log(`TTS Override = ${TTSoverride}`, 4, false);
     } else if (input == ServerCMDs[13]) {
         TTSoverride = false;
-        log(`TTS Override = ${TTSoverride}`, 4)
+        log(`TTS Override = ${TTSoverride}`, 4, false);
     } else if (input == ServerCMDs[14]) {
         if (ttsForce) {
-            return log(`ttsForce bereits AKTIV; ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2);
+            return log(`ttsForce bereits AKTIV; ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2, false);
         }
-        log(`Achtung! ttsForce ÜBERSPRINGT TTS CHECKS. DIES KANN ZU LOOPS UND ZU ANDEREN FEHLERN FÜHREN. BENUTZUNG AUF EIGENE GEFAHR! ttsForce aktivieren? [J/n]`, 2);
+        log(`Achtung! ttsForce �BERSPRINGT TTS CHECKS. DIES KANN ZU LOOPS UND ZU ANDEREN FEHLERN F�HREN. BENUTZUNG AUF EIGENE GEFAHR! ttsForce aktivieren? [J/n]`, 2, false);
         conformation = true;
     } else if (input == ServerCMDs[15]) {
         ttsForce = false;
-        log(`ttsForce = ${ttsForce}`, 4)
+        log(`ttsForce = ${ttsForce}`, 4, false)
     } else if (input === "J" && conformation) {
         ttsForce = true;
         conformation = false;
-        log(`ttsForce = ${ttsForce} || Achtung! ttsForce ist AKTIV!, ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2)
+        log(`ttsForce = ${ttsForce} || Achtung! ttsForce ist AKTIV!, ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2, false)
     } else if (input === "n" && conformation) {
         ttsForce = false;
         conformation = false;
-        log(`ttsForce = ${ttsForce} || Achtung! NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2)
+        log(`ttsForce = ${ttsForce} || Achtung! NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
     } else if (conformation) {
         conformation = false;
         ttsForce = false;
-        log(`ttsForce = ${ttsForce} || Achtung! KEIN JA ODER NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2)
+        log(`ttsForce = ${ttsForce} || Achtung! KEIN JA ODER NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
     } else if (!conformation) {
-        log(`SyntaxError, befehl nicht erkannt - Input(${input})${RESET}`, 1);
+        log(`SyntaxError, befehl nicht erkannt - Input(${input})`, 1, false);
     }
 });
 
@@ -226,8 +347,7 @@ const warnungsGruppen = {
 };
 
 async function ninaAbfrageFetch() {
-    console.log(new Date(), "[DEBUG]: NINA Abfrage fetch rq call");
-    console.log("[DNS CHECK BEFORE FETCH]", require("dns").getServers());
+    await log("ninaAbfrageFetch called", 4, false);
 
     const data = await safeFetch(useofNINAa[useOfNINA]);
     if (!data) return;
@@ -252,7 +372,7 @@ async function ninaAbfrageFetch() {
         }));
 
     if (highAlerts.length === 0) {
-        log("Keine Aktiven Alarmmeldungen", 2);
+        await log("Keine Aktiven Alarmmeldungen", 2, false);
     }
 
     highAlerts.sort((a, b) => {
@@ -264,9 +384,10 @@ async function ninaAbfrageFetch() {
         else if (alert.severity === "Severe") warnungsGruppen.Severe.push(alert);
         else if (alert.severity === "Moderate") warnungsGruppen.Moderate.push(alert);
         else if (alert.severity === "Minor") {
-            warnungsGruppen.Moderate.push(alert);
+            warnungsGruppen.Minor.push(alert);
             // log("Alert severity zu low", 2);
         }
+        await log(JSON.stringify(warnungsGruppen), 4, false);
     }
 
     await processAlerts();
@@ -274,17 +395,17 @@ async function ninaAbfrageFetch() {
 
 async function safeFetch(url) {
     try {
-        console.log("[FETCH TRY]:", url);
+        await log(`FETCH TRY: ${url}`, 4, false);
 
         const response = await fetch(url);
 
-        console.log("[FETCH STATUS]:", response.status);
+        await log(`FETCH STATUS: ${response.status}`, 4, false);
 
         const data = await response.json();
         return data;
 
     } catch (error) {
-        console.log("[FETCH ERROR RAW]:", error);
+        await log(`Fetch-Request Error bei safeFetch(); Error: ${error}`, 1, true);
         return null;
     }
 }
@@ -300,12 +421,12 @@ async function processAlerts() {
             return date;
         }
 
-        console.log(dateNew(), "[DEBUG]: Inhaltsprüfung von Gruppe", severity);
-        if (gruppe == "") {
-            console.log(dateNew(), "[DEBUG]: Gruppe leer");
+        console.log(dateNew(), "[DEBUG]: Inhaltspr�fung von Gruppe", severity);
+        if (gruppe.length === 0) {
+            await log(`Gruppe ${severity} leer`, 3, false);
             continue;
         } else {
-            console.log(dateNew(), "[DEBUG]: Gruppe nicht leer");
+            await log(`Gruppe ${severity} nicht leer; InfoZurWarnung Called`, 3, false);
         }
 
         for (const alert of gruppe) {
@@ -315,10 +436,6 @@ async function processAlerts() {
 }
 
 async function InfoZurWarnung(AlertID) {
-    function dateNew() {
-        var date = new Date();
-        return date;
-    }
 
     var headline = [];
     var description = [];
@@ -326,16 +443,13 @@ async function InfoZurWarnung(AlertID) {
     var urgency = [];
     var severity = [];
     var InfoNINAreq = InfoNINA + AlertID + ".json";
-    console.log(
-        dateNew(),
-        "[DEBUG]: FetchRQ startet - Get: Genaue Informationen zur Warnung",
-    );
+
+    await log("FetchRequest called; Get-Request: Genaue Informationen zur Warnung", 4, false);
+
     await fetch(InfoNINAreq)
         .then((response) => {
             if (!response.ok) {
-                return console.error(
-                    `${RED}${newDate2()} [ERROR]: HTTP-Fehler bein InfoNINAreq: ${response.status}${RESET}`,
-                );
+                return log(`Fetch-Request Error; HTTP-Fehler bei InfoNINAreq: ${response.status}`, 1, false);
             }
             return response.json(); // Antwort als JSON parsen
         })
@@ -353,16 +467,27 @@ async function InfoZurWarnung(AlertID) {
                 severity,
                 data,
             );
-            console.log(dateNew(), "[DEBUG]: TTS Call");
+            log("TTS Call", 4, false);
             ttsQueue.push({text: ttsWarnung.normalize("NFC"), schweregrad: severity});
-            playTTSQueue();
+            playTTSQueue(headline);
         })
 
-        .catch((error) => log(error, 1));
+        .catch((error) => log(`Unbekannter Fetch Request Error, error: ${{error}}`, 1, false));
 }
 
 function NINAautoAbfrageStarten() {
-    NINAAbfrage = setInterval(() => ninaAbfrageFetch(), WarnungIssuedTimer(), 10000);
+    NINAAbfrage = setInterval(() => ninaAbfrageFetch(), 30000);
+}
+
+
+setInterval(() => WarnungIssuedTimer(), 60000);
+setInterval(() => clearErrors(), 600000);
+setInterval(() => serverStatus(), 15000);
+
+function clearErrors() {
+    logs.errs = [];
+    logs.warnings = [];
+    logs.fatalerrs = [];
 }
 
 function NINAautoAbfrageStop() {
@@ -372,50 +497,53 @@ function NINAautoAbfrageStop() {
 
 var lastSeverity = [];
 
-async function playTTSQueue() {
+async function playTTSQueue(title) {
     if (!ttsForce) {
         if (ttsRunning) {
-            await log(`TTS Call abgelehnt da TTS Running = ${ttsRunning}`, 2);
+            await log(`TTS Call abgelehnt da TTS Running = ${ttsRunning}`, 2, false);
             return;
         }
     } else {
-        log("Achtung! ttsForce AKTIV! ttsRunning check ÜBERSPRUNGEN", 2)
+        log("Achtung! ttsForce AKTIV! ttsRunning check �BERSPRUNGEN", 2, false);
     }
     ttsRunning = true;
 
     while (ttsQueue.length > 0) {
-        const {text, schweregrad} = ttsQueue.shift(); // <-- destructuring
+        const {text, schweregrad} = ttsQueue.shift();
 
         if (!ttsForce) {
             if (warnRAMEntCheck(text)) {
-                await log("[DEBUG]: TTS Call abgelehnt da letzeWarnung = InputTTS text", 2);
+                await log("TTS Call abgelehnt da letzeWarnung = InputTTS text", 3, false);
                 continue;
             }
-        } else {
-            await log("Achtung! ttsForce AKTIV! warnRamEntCheck ÜBERSPRUNGEN!")
+        } else if (ttsForce) {
+            await log("Achtung! ttsForce AKTIV! warnRamEntCheck �BERSPRUNGEN!", 2, false);
         }
 
         if (WarnungIssued && !ttsForce) {
-            if (severityToNumber(schweregrad) > severityToNumber(lastSeverity)) {
-                await log(`TTS Override aktiviert`, 2);
-                TTSOverride = true;
+            if (await severityToNumber(schweregrad) > await severityToNumber(lastSeverity)) {
+                await log(`TTS Override aktiviert`, 2, false);
+                TTSoverride = true;
+                timer2 = 0;
             } else {
-                await log(`TTS Call abgelehnt da WarningIssued == ${WarnungIssued}`, 2);
-                await log(`Severity lower oder gleich, kein TTS Override`, 3);
+                await log(`TTS Call abgelehnt da WarningIssued == ${WarnungIssued}`, 2, false);
+                await log(`Severity lower oder gleich, kein TTS Override`, 3, false);
                 continue;
             }
-        } else await log(`Achtung! ttsForce AKTIV! WarningIssued check ÜBERSPRUNGEN!`, 2);
+        } else if (ttsForce) await log(`Achtung! ttsForce AKTIV! WarningIssued check �BERSPRUNGEN!`, 2, false);
 
         console.log(newDate2(), "[DEBUG]: Schweregrad:", schweregrad);
         console.log(newDate2(), "[DEBUG]: Transcript:", {text});
+        offtts = false;
+        await ttsStatus(text, schweregrad, newDate2(), title);
 
         await new Promise((resolve) => {
             tts.speak(text, schweregrad, resolve, TTSoverride);
             letzeWarnung = text;
             WarnungIssued = true;
             lastSeverity = schweregrad
-            TTSOverride = false;
-            log(`newPromise; letzeWarnung = ${text}, Warning Issued = ${WarnungIssued}, lastSeverityy = ${lastSeverity}, TTSOverride = ${TTSOverride}`, 4);
+            TTSoverride = false;
+            log(`newPromise; letzeWarnung = ${text}, Warning Issued = ${WarnungIssued}, lastSeverityy = ${lastSeverity}, TTSOverride = ${TTSoverride}`, 4, false);
             ramPush(letzeWarnung)
         });
     }
@@ -423,93 +551,74 @@ async function playTTSQueue() {
     ttsRunning = false;
 }
 
-function ramPush(letzeWarnung) {
-    if (ram.RamSpeicher1.length == 0) {
-        log("[DEBUG]: RAM SpeicherSlot1 InputPUSH", 4);
-        ram.RamSpeicher1.push(letzeWarnung);
-    } else if (ram.RamSpeicher1.length !== 0) {
-        if (ram.RamSpeicher8.length !== 0) {
-            ram.RamSpeicher8 = ram.RamSpeicher9;
-            log(
-                "[DEBUG]: RAM SpeicherSlot8 PUSH -> SpeicherSlot9", 4
-            );
+
+async function ramPush(letzeWarnung) {
+    try {
+        for (var i = 9; i >= 2; i--) {
+            if (ram[`RamSpeicher${i}`].length !== 0) {
+                (ram[`RamSpeicher${i}`]) = ((ram[`RamSpeicher${i - 1}`]))
+            } else {
+                (ram[`RamSpeicher${i}`] = ({text: `RamSpeicher${i}`}));
+            }
         }
-        if (ram.RamSpeicher7.length !== 0) {
-            ram.RamSpeicher7 = ram.RamSpeicher8;
-            log(
-                "[DEBUG]: RAM SpeicherSlot7 PUSH -> SpeicherSlot8", 4
-            );
-        }
-        if (ram.RamSpeicher6.length !== 0) {
-            ram.RamSpeicher6 = ram.RamSpeicher7;
-            log(
-                "[DEBUG]: RAM SpeicherSlot6 PUSH -> SpeicherSlot7", 4
-            );
-        }
-        if (ram.RamSpeicher5.length !== 0) {
-            ram.RamSpeicher5 = ram.RamSpeicher6;
-            log(
-                "[DEBUG]: RAM SpeicherSlot5 PUSH -> SpeicherSlot6", 4
-            );
-        }
-        if (ram.RamSpeicher4.length !== 0) {
-            ram.RamSpeicher4 = ram.RamSpeicher5;
-            log(
-                "[DEBUG]: RAM SpeicherSlot4 PUSH -> SpeicherSlot5", 4
-            );
-        }
-        if (ram.RamSpeicher3.length !== 0) {
-            ram.RamSpeicher3 = ram.RamSpeicher4;
-            log(
-                "[DEBUG]: RAM SpeicherSlot3 PUSH -> SpeicherSlot4", 4
-            );
-        }
-        if (ram.RamSpeicher2.length !== 0) {
-            ram.RamSpeicher2 = ram.RamSpeicher3;
-            log(
-                "[DEBUG]: RAM SpeicherSlot2 PUSH -> SpeicherSlot3", 4
-            );
-        }
-        ram.RamSpeicher1 = ram.RamSpeicher2;
-        log(
-            "[DEBUG]: RAM SpeicherSlot1 PUSH -> SpeicherSlot2", 4
-        );
-        ram.RamSpeicher1.push(letzeWarnung);
-        log("[DEBUG]: RAM SpeicherSlot1 InputPUSH", 4);
-    } else {
-        console.log(
-            `${RED} ${newDate2()} [ERROR]: RamSpeicher-Error: (RamSpeicher1.length == 0) = false, (RamSpeicher1.length !== 0) = false; Loggen von RAM SpeicherSlots:${RESET}`,
-            ram,
-            `\n${RESET}[INFO]: Run ram: c, um RAM zu clearen${RESET}`,
-        );
+
+        ram.RamSpeicher1 = letzeWarnung;
+    } catch (e) {
+        return await log(`RamSpeicher-Error: Unbekannter Interner Server Fehler bei ramPush; Loggen von RAM SpeicherSlots: ${JSON.stringify(ram)} || Error Ausgabe: ${e}`, 1, true);
     }
 }
 
-var timer = 0; // 10sek: timer = 1
-var timer2 = 0; // 1 min: timer2 = 1
+
 
 async function WarnungIssuedTimer() {
     if (!WarnungIssued) return;
-    if (timer >= 6) {
-        timer = 0;
-        timer2++;
-    }
     if (timer2 >= 5) {
         WarnungIssued = false
         timer2 = 0;
+        offtts = true;
+        await ttsStatus(null, null, null, null);
+        return;
     }
-    timer++;
+    timer2++;
+    await log(`timer2=${timer2}`, 3, false);
 }
 
 async function severityToNumber(severity) {
-    log(`Severity to Number, Severity: ${severity}`, 4);
+    await log(`Severity to Number, Severity: ${severity}`, 4);
     if (severity == "Extreme") {
-        return 4, log("Severity: 4", 4);
+        return 4;
     } else if (severity == "Severe") {
-        return 3, log("Severity: 3", 4);
+        return 3;
     } else if (severity == "Moderate") {
-        return 2, log("Severity: 2", 4);
+        return 2;
     } else {
-        return 1, log("Severity: 1", 4);
+        return 1;
     }
 }
+
+process.on('uncaughtException', async (err) => {
+    await pushLogInLogs(err.stack || err.toString(), "fatalerror", true);
+    serverStatusonline = false;
+    await serverStatus();
+    process.exit(1);
+});
+
+process.on('unhandledRejection', async (reason) => {
+    await pushLogInLogs(reason?.stack || String(reason), "fatalerror", true);
+    serverStatusonline = false;
+    await serverStatus();
+    process.exit(1);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
