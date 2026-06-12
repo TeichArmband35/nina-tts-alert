@@ -126,7 +126,7 @@ the current one has been issued for the area. It can also be activated manually
 
 ### TTS Cooldown
 After a warning has been processed, the TTS system will not process any other warnings 
-for 5 minutes. This cooldown can only be bypassed by the TTS Override.
+for 5 minutes. This cooldown can only be bypassed by the TTS Override or by TTS Force.
 
 ### TTS Force
 The TTS Force skips all checks in the `playTTSQueue` function. **Use with caution!**
@@ -134,6 +134,8 @@ This will bypass:
 - Loop prevention
 - Previously processed warning checks
 - The TTS-already-running check
+
+![Activating TTS Force](server/gifs/forceit.gif)
 
 ### ARS
 [The Official Municipal Code (AGS), formerly also known as the Official Municipal 
