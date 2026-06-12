@@ -7,6 +7,8 @@ Due to this project featuring the BBK, all console output (including commands an
 and therefore warnings are currently **in German**. Support for warnings, commands, and 
 errors **in English is not planned but may come in the future**.
 
+![NINA server handling an issued warning](server/gifs/warninggettingfetched.gif)
+
 ## Tech
 - `Coqui TTS`
 - `Node.js`
@@ -40,6 +42,8 @@ errors **in English is not planned but may come in the future**.
 > Note: Everything should be installed in the **same directory** (~/server).
 > Please configure the Programm before starting, see "Configuration".
 > Every node module that is used should also be installed.
+
+![Starting the NINA server](server/gifs/activateit.gif)
 
 ## Console Commands
 
@@ -236,3 +240,5 @@ This project is intended for **private, non-commercial use only** (e.g. home int
 The author is not responsible for any misuse of this software.
 By using this project, you agree to comply with all applicable local laws and regulations.
 This project is not affiliated with, endorsed by, or connected to the BBK or any government agency.
+
+![alt + f4](server/gifs/exit.gif)
