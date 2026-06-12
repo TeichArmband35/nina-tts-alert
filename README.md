@@ -34,7 +34,7 @@ errors **in English is not planned but may come in the future**.
 - Install TTS
 - Open the console (in ~/server)
 - Run `node server.js`
-- Open the console (in */server/DownloadWebsite)
+- Open the console (in ~/server/DownloadWebsite)
 - Run `node server.js`
 
 → The program should now be running.
