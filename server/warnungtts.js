@@ -23,8 +23,15 @@ function speak(text, schweregrad, done, TTSoverride) {
 
     const ttsFile = path.join(__dirname, "tts.wav");
 
-    const cmd = `tts --text "${text.replace(/"/g, '\\"')}" \
---model_name "tts_models/de/thorsten/tacotron2-DDC" \
+    const safeText = text
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, " ");
+
+    const ttsBin = ".../.pyenv/shims/tts"; // Replace this with your path of the installation of tts
+
+    const cmd = `"${ttsBin}" --text "${safeText}" \
+--model_name "tts_models/de/thorsten/vits" \
 --out_path "${ttsFile}"`;
 
     exec(cmd, (err) => {
@@ -77,7 +84,7 @@ function speak(text, schweregrad, done, TTSoverride) {
         console.log("GONG:", gongFile);
         const ffmpeg = spawn("ffmpeg", ffmpegArgs);
 
-        const outFile = fs.createWriteStream(__dirname + "/output.mp3");
+        const outFile = fs.createWriteStream(__dirname + "/DownloadWebsite/Warnungen/output.mp3");
         ffmpeg.stdout.pipe(outFile);
 
         ffmpeg.stdin.write(wavBuffer);
