@@ -1,104 +1,54 @@
-function speak(text, schweregrad, done, TTSoverride) {
+function WarnungsNarchichtErstellen(
+    headline,
+    description,
+    event,
+    urgency,
+    severity,
+    data,
+) {
+    var descriptionStringFiltered = data.info[0].description
+        .replace(/(<br\s*\/?>)+/gi, " ")
+        .trim();
 
-    function dateNew() {
-        return date = new Date().toISOString();
+    const Anfang = "Warnung!";
+    var Einleitung =
+        "Das Bundesamt f�r Bev�lkerungsschutz und Katastrophenhilfe warnt vor dem Ereignis. " +
+        headline;
+    var beschreibung1 = [];
+    var beschreibung2 = [];
+    const beschreibung3 = "Die Beschreibung von der Warnung wird nun vorgelesen.";
+    const beschreibung4 =
+        ". Falls Seh-renen, Warnung der Bev�lkerung heulen, welcher ein Auf- und Abschwellender heulton ist, befolgen sie folgende Schritte:";
+    const beschreibung5 =
+        ". Suchen sie ein Geb�ude auf. Schlie�en sie Fenster und T�ren. Deaktivieren sie, falls m�glich, alle Klimaanlagen und L�ftungen. Schalten sie Rundfunkger�te ein. Beachten sie Meldungen von Warn-Apps. Befolgen sie Anweisungen der Beh�rden. Informieren sie ihre Nachbarn. Bitte benutzen sie nur Notrufleitungen f�r Notf�lle.";
+    const ende = ". Diese Angaben sind ohne Gew�hr. Das verwendete Sprach-Modell kann Telefonnummern, Uhrzeiten und Informationen falsch vorlesen. Bitte �berpr�fen Sie diese in der NINA App. Befolgen Sie ausschlie�lich offizielle Anweisungen der Beh�rden.";
+    const beschreibung6 = "Falls Seh-renen, Entwarnung heulen, welcher ein 60 sek�ndiger Dauerton ist, ist diese oder eine andere Warnung aufgehoben.";
+
+    if (severity == "Moderate") {
+        beschreibung1 = ".Die Warnung hat den Schweregrad moderat.";
+        beschreibung2 =
+            "Eine moderate Warnung bedeutet das die Gefahr M��ig, potenziell sch�dlich, aber nicht lebensbedrohlich ist.";
+    } else if (severity == "Severe") {
+        beschreibung1 = ".Die Warnung hat den Schweregrad schwer.";
+        beschreibung2 =
+            "Eine schwere Warnung bedeutet das die Gefahr sehr ernst ist und das schwere Sch�den oder Verletzungen m�glich sind.";
+    } else if (severity == "Extreme") {
+        beschreibung1 = ".Die Warnung hat den Schweregrad extrem.";
+        beschreibung2 =
+            "Eine extreme Warnung bedeutet das die Gefahr Lebensbedrohlich oder katastrophal ist. Dies ist die h�chste Gefahrenstufe.";
     }
-
-    const path = require("path");
-    const {spawn, exec} = require("child_process");
-    const fs = require("fs");
-
-    console.log(dateNew(), "[DEBUG]: TTS Initialisierung");
-
-    let gongFile;
-    if (TTSoverride) {
-        gongFile = path.join(__dirname, "GongSounds/warnungunterbrochen.wav");
-    } else if (schweregrad === "Moderate" || schweregrad === "Minor") {
-        gongFile = path.join(__dirname, "GongSounds/gong_moderat.wav");
-    } else if (schweregrad === "Severe" || schweregrad === "Extreme") {
-        gongFile = path.join(__dirname, "GongSounds/gong_schwer_extrem.wav");
-    } else {
-        gongFile = null;
-    }
-
-    const ttsFile = path.join(__dirname, "tts.wav");
-
-    const safeText = text
-        .replace(/\\/g, "\\\\")
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, " ");
-
-    const ttsBin = ".../.pyenv/shims/tts"; // Replace this with your path of the installation of tts
-
-    const cmd = `"${ttsBin}" --text "${safeText}" \
---model_name "tts_models/de/thorsten/vits" \
---out_path "${ttsFile}"`;
-
-    exec(cmd, (err) => {
-        if (err) {
-            console.error("TTS Error:", err);
-            if (done) done(err);
-            return;
-        }
-
-        console.log(dateNew(), "[DEBUG]: TTS fertig");
-
-        const wavBuffer = fs.readFileSync(ttsFile);
-        let delayMs = (TTSoverride ? 17000 : ((schweregrad == "Extreme" || schweregrad == "Severe") ? 11200 : 2500));
-
-        let ffmpegArgs;
-
-        console.log("[DEBUG]: GONG FILE:", gongFile);
-        console.log("[DEBUG] EXISTS:", fs.existsSync(gongFile));
-        console.log("CWD:", process.cwd());
-        console.log("GONG FILE:", gongFile);
-        console.log("EXISTS:", fs.existsSync(gongFile));
-
-        if (gongFile && fs.existsSync(gongFile)) {
-
-            const filterComplex =
-                `[0:a]adelay=${delayMs}|${delayMs}[voice];` +
-                `[1:a]volume=1.5[gong];` +
-                `[voice][gong]amix=inputs=2:duration=longest:dropout_transition=2[out]`;
-
-            ffmpegArgs = [
-                "-f", "wav", "-i", "pipe:0",
-                "-i", gongFile,
-                "-filter_complex", filterComplex,
-                "-map", "[out]",
-                "-f", "mp3",
-                "-b:a", "128k",
-                "pipe:1"
-            ];
-
-        } else {
-
-            ffmpegArgs = [
-                "-f", "wav", "-i", "pipe:0",
-                "-f", "mp3",
-                "-b:a", "128k",
-                "pipe:1"
-            ];
-        }
-        console.log("FFMPEG ARGS:", ffmpegArgs);
-        console.log("GONG:", gongFile);
-        const ffmpeg = spawn("ffmpeg", ffmpegArgs);
-
-        const outFile = fs.createWriteStream(__dirname + "/DownloadWebsite/Warnungen/output.mp3");
-        ffmpeg.stdout.pipe(outFile);
-
-        ffmpeg.stdin.write(wavBuffer);
-        ffmpeg.stdin.end();
-
-        ffmpeg.stderr.on("data", (d) => {
-            console.log(dateNew(), "[DEBUG ffmpeg]:", d.toString().trim());
-        });
-
-        ffmpeg.on("close", (code) => {
-            console.log(dateNew(), "[DEBUG]: fertig", code);
-            if (done) done(code !== 0 ? new Error("ffmpeg error") : null);
-        });
-    });
+     return [
+        Anfang,
+        Einleitung,
+        beschreibung1,
+        beschreibung2,
+        beschreibung4,
+        beschreibung5,
+        beschreibung6,
+        beschreibung3,
+        descriptionStringFiltered,
+        ende,
+    ].join("\n");
 }
 
-module.exports = {speak}
+module.exports = {WarnungsNarchichtErstellen};
