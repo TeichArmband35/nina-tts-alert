@@ -110,7 +110,7 @@ while the program is running, then perform a manual fetch request.)
 
 ### Naaf
 The naaf (NINA Automatische Abfrage, i.e. NINA Automatic Fetch System) activates or
-deactivates the *real-time warning system*. Once enabled, it checks every 60 seconds for
+deactivates the *real-time warning system*. Once enabled, it checks every 30 seconds for
 a warning from the selected API (see console commands on how to enable, disable, or
 change the API).
 
