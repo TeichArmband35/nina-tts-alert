@@ -231,6 +231,7 @@ options (e.g. for English warnings).
   }`
   
 > Note: The `schweregrad` is an integer from 1 to 4, 1 being the lowest severity (`Minor`) and 4 the highest severity (`Extreme`).
+> **Furthermore, if any errors happen in the NINA Server all error messages (including crash reports), can be seen on the API `server/status`.**
 
 ## Using it with an Intercom system
 To use this program for an intercom system you will first need to host the program on a local machine (e.g. hosting it with a `Raspberry Pi 4 8GB`) and configure the firewall
