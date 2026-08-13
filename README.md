@@ -17,7 +17,7 @@ errors **in English is not planned but may come in the future**.
 - `bcryptjs`
 
 ## Features
-- Real-time warnings (output: audio; German TTS voice — interval check or manual fetch request)
+- Real-time warnings (output: audio; German TTS voice; interval check or manual fetch request)
 - Configurable fetch request for warnings (for areas defined by the official ARS code; configurable via console commands)
 - Console log & commands
 - Sorting by warning severity
