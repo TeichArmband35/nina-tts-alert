@@ -14,6 +14,9 @@ const hash3 = "Insert here your third password";
 
 // no config after this point, keine config nach diesem punkt lol
 
+var cmdInputErlaubt = true;
+var testaktv = false;
+
 const logs = {
     fatalerrs: [],
     errs: [],
@@ -113,8 +116,8 @@ async function pushLogInLogs(msg, type, override) {
 
 
 const RED = "\x1b[31m"; // Rot
-const YELLOW = "\u001b[38;2;253;182;0m" // Gelb für Warnungen
-const RESET = "\x1b[0m"; // Zurücksetzen der Farbe
+const YELLOW = "\u001b[38;2;253;182;0m" // Gelb f�r Warnungen
+const RESET = "\x1b[0m"; // Zur�cksetzen der Farbe
 
 const ErrorWarnung = RED + "[ERROR]:";
 const WarnungWarnung = YELLOW + "[WARNUNG]:";
@@ -184,7 +187,7 @@ function ramP() {
 function letzeWarnungReset() {
     letzeWarnung = [];
     log(
-        `Letzte Warnung gelöscht, letzteWarnung: ${JSON.stringify(letzeWarnung)}`,
+        `Letzte Warnung gel�scht, letzteWarnung: ${JSON.stringify(letzeWarnung)}`,
         3,
     );
 }
@@ -247,11 +250,13 @@ const ServerCMDs = [
     "ttsovr: true",
     "ttsovr: false",
     "tts: force",
-    "tts: dforce"
+    "tts: dforce",
+    "wart: force",
+    "testsys",
 ];
 console.log(
     (date = new Date()),
-    "[INFO]: Verfügbare Server-Befehle sind:",
+    "[INFO]: Verf�gbare Server-Befehle sind:",
     ServerCMDs,
 );
 const readline = require("readline");
@@ -263,70 +268,88 @@ const rl = readline.createInterface({
 });
 
 var conformation = false;
+
 rl.on("line", async (input)  => {
+    if (!cmdInputErlaubt && input === "nf") {
+        cmdInputErlaubt = true;
+        log(`Notfall override aktiviert, cmdInputErlaubt == ${cmdInputErlaubt} `, 1, false);
+        return;
+    }
+    if (!cmdInputErlaubt) {
+        log("Input vom System blockiet, override: nf", 1 , false);
+        return;
+    }
     if (input === ServerCMDs[0]) {
-        log("Server wird Heruntergefahren", 3, false);
+        await log("Server wird Heruntergefahren", 3, false);
         serverStatusonline = false;
         await serverStatus();
         process.exit();
     } else if (input === ServerCMDs[1]) {
         useOfNINA = 0;
-        log(`NINA Check API wird geändert zu: ${useofNINAa[useOfNINA]}`, 3, false);
+        await log(`NINA Check API wird ge�ndert zu: ${useofNINAa[useOfNINA]}`, 3, false);
     } else if (input === ServerCMDs[2]) {
         useOfNINA = 1;
-        log(`NINA Check API wird geändert zu: ${useofNINAa[useOfNINA]}`, 3, false);
-    } else if (input == ServerCMDs[3]) {
-        letzeWarnungReset();
-    } else if (input == ServerCMDs[4]) {
-        letzeWarnungPrint();serverStatusonline = true;
-    } else if (input == ServerCMDs[5]) {
-        log(`NINA Check API in benutzung: ${useofNINAa[useOfNINA]}`, 3, false);
-    } else if (input == ServerCMDs[6]) {
-        log("Auto NINA Abfrage gestartet", 3, false);
+        await log(`NINA Check API wird ge�ndert zu: ${useofNINAa[useOfNINA]}`, 3, false);
+    } else if (input === ServerCMDs[3]) {
+        await letzeWarnungReset();
+    } else if (input === ServerCMDs[4]) {
+        await letzeWarnungPrint();serverStatusonline = true;
+    } else if (input === ServerCMDs[5]) {
+        await log(`NINA Check API in benutzung: ${useofNINAa[useOfNINA]}`, 3, false);
+    } else if (input === ServerCMDs[6]) {
+        await log("Auto NINA Abfrage gestartet", 3, false);
         NINAautoAbfrageStarten();
-    } else if (input == ServerCMDs[7]) {
-        log("Auto NINA Abfrage gestoppt", 3, false);
+    } else if (input === ServerCMDs[7]) {
+        await log("Auto NINA Abfrage gestoppt", 3, false);
         NINAautoAbfrageStop();
-    } else if (input == ServerCMDs[8]) {
-        log("NINA Abfrage - Force Request", 3, false);
-        ninaAbfrageFetch();
-    } else if (input == ServerCMDs[9]) {
-        log("RAMClearer START", 4, false);
-        ramClearen();
-    } else if (input == ServerCMDs[10]) {
-        log("RAMPrinter CALL", 4, false);
+    } else if (input === ServerCMDs[8]) {
+        await log("NINA Abfrage - Force Request", 3, false);
+        await ninaAbfrageFetch();
+    } else if (input === ServerCMDs[9]) {
+        await log("RAMClearer START", 4, false);
+        await ramClearen();
+    } else if (input === ServerCMDs[10]) {
+        await log("RAMPrinter CALL", 4, false);
         ramP();
-    } else if (input == ServerCMDs[11]) {
-        testColors();
-    } else if (input == ServerCMDs[12]) {
+    } else if (input === ServerCMDs[11]) {
+        await testColors();
+    } else if (input === ServerCMDs[12]) {
         TTSoverride = true;
-        log(`TTS Override = ${TTSoverride}`, 4, false);
-    } else if (input == ServerCMDs[13]) {
+        await log(`TTS Override = ${TTSoverride}`, 4, false);
+    } else if (input === ServerCMDs[13]) {
         TTSoverride = false;
-        log(`TTS Override = ${TTSoverride}`, 4, false);
-    } else if (input == ServerCMDs[14]) {
+        await log(`TTS Override = ${TTSoverride}`, 4, false);
+    } else if (input === ServerCMDs[14]) {
         if (ttsForce) {
             return log(`ttsForce bereits AKTIV; ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2, false);
         }
-        log(`Achtung! ttsForce ÜBERSPRINGT TTS CHECKS. DIES KANN ZU LOOPS UND ZU ANDEREN FEHLERN FÜHREN. BENUTZUNG AUF EIGENE GEFAHR! ttsForce aktivieren? [J/n]`, 2, false);
+        await log(`Achtung! ttsForce �BERSPRINGT TTS CHECKS. DIES KANN ZU LOOPS UND ZU ANDEREN FEHLERN F�HREN. BENUTZUNG AUF EIGENE GEFAHR! ttsForce aktivieren? [J/n]`, 2, false);
         conformation = true;
-    } else if (input == ServerCMDs[15]) {
+    } else if (input === ServerCMDs[15]) {
         ttsForce = false;
-        log(`ttsForce = ${ttsForce}`, 4, false)
-    } else if (input === "J" && conformation) {
+        await log(`ttsForce = ${ttsForce}`, 4, false)
+    } else if (input === ServerCMDs[16]) {
+        await log("Wartung wird geforced", 2, false);
+        await wartung();
+    }
+    else if (input === ServerCMDs[17]) {
+        await log("Test Warnungen werden ausgef�hrt", 2, false)
+        await testsys();
+    }
+    else if (input === "J" && conformation) {
         ttsForce = true;
         conformation = false;
-        log(`ttsForce = ${ttsForce} || Achtung! ttsForce ist AKTIV!, ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2, false)
+        await log(`ttsForce = ${ttsForce} || Achtung! ttsForce ist AKTIV!, ZUM DEAKTIVIEREN: ${ServerCMDs[15]}`, 2, false)
     } else if (input === "n" && conformation) {
         ttsForce = false;
         conformation = false;
-        log(`ttsForce = ${ttsForce} || Achtung! NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
+        await log(`ttsForce = ${ttsForce} || Achtung! NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
     } else if (conformation) {
         conformation = false;
         ttsForce = false;
-        log(`ttsForce = ${ttsForce} || Achtung! KEIN JA ODER NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
+        await log(`ttsForce = ${ttsForce} || Achtung! KEIN JA ODER NEIN ERKANNT! ttsForce Befehl ABGEBROCHEN! Falls ttsForce aktiv war, wurde dies nun auf FALSE gestellt!`, 2, false)
     } else if (!conformation) {
-        log(`SyntaxError, befehl nicht erkannt - Input(${input})`, 1, false);
+        await log(`SyntaxError, befehl nicht erkannt - Input(${input})`, 1, false);
     }
 });
 
@@ -420,7 +443,7 @@ async function processAlerts() {
             return date;
         }
 
-        console.log(dateNew(), "[DEBUG]: Inhaltsprüfung von Gruppe", severity);
+        console.log(dateNew(), "[DEBUG]: Inhaltspr�fung von Gruppe", severity);
         if (gruppe.length === 0) {
             await log(`Gruppe ${severity} leer`, 3, false);
             continue;
@@ -443,6 +466,7 @@ async function InfoZurWarnung(AlertID) {
     var severity = [];
     var InfoNINAreq = InfoNINA + AlertID + ".json";
     var instruction = [];
+    var senderName = [];
 
     await log("FetchRequest called; Get-Request: Genaue Informationen zur Warnung", 4, false);
 
@@ -454,12 +478,21 @@ async function InfoZurWarnung(AlertID) {
             return response.json(); // Antwort als JSON parsen
         })
         .then((data) => {
-            headline = data.info[0].headline;
-            description = data.info[0].description;
-            event = data.info[0].event;
-            urgency = data.info[0].urgency;
-            severity = data.info[0].severity;
-            instruction = data.info[0].instruction;
+            headline = data.info[0].headline ?? "";
+            description = data.info[0].description ?? "";
+            event = data.info[0].event ?? "";
+            urgency = data.info[0].urgency ?? "";
+            severity = data.info[0].severity ?? "";
+            instruction = data.info[0].instruction ?? "";
+            senderName = data.info[0].senderName ?? "";
+
+
+            if (senderName.length <= 0) {
+                senderName = "Bundesamt f�r Bev�lkerungsschutz und Katastrophenhilfe";
+            }
+            if (instruction.length <= 0) {
+                instruction = "Warnung. Keine weitere Ma�nahmen verf�gbar.";
+            }
 
             ttsWarnung = buildTTS(
                 headline,
@@ -469,33 +502,42 @@ async function InfoZurWarnung(AlertID) {
                 severity,
                 data,
                 instruction,
+                senderName,
             );
 
-            console.log(instruction);
             const normalized = ttsWarnung.normalize("NFC");
 
             if (ttsQueue.some(q => q.text === normalized)) {
-                log("TTS bereits in Queue, übersprungen", 2, false);
+                log("TTS bereits in Queue, �bersprungen", 2, false);
                 return;
             }
             if (warnRAMEntCheck(normalized)) {
-                log("TTS bereits im RAM, übersprungen", 2, false);
+                log("TTS bereits im RAM, �bersprungen", 2, false);
                 return;
             }
 
             log("TTS Call", 4, false);
-            ttsQueue.push({text: normalized, schweregrad: severity});
-            playTTSQueue(headline);
+            ttsQueue.push({text: normalized, schweregrad: severity, title: headline});
+            playTTSQueue();
         })
 
-        .catch((error) => log(`Unbekannter Fetch Request Error, error: ${JSON.stringify(error)}`, 1, false));
+        .catch((error) => {
+            log(`Unbekannter Fetch Request Error, error: ${JSON.stringify(error) + " " + error} `, 1, false)
+        })
 }
+
+
+/* Intervalle
+* ------------------------------------------------------------------------*/
+var intervalRunning = false;
 
 function NINAautoAbfrageStarten() {
     NINAAbfrage = setInterval(() => ninaAbfrageFetch(), 30000);
+    intervalRunning = true;
+    log("naaf wurde aktiviert", 4, false);
 }
 
-
+setInterval(() => wartung(), 900000)
 setInterval(() => WarnungIssuedTimer(), 60000);
 setInterval(() => clearErrors(), 600000);
 setInterval(() => serverStatus(), 15000);
@@ -508,23 +550,33 @@ function clearErrors() {
 
 function NINAautoAbfrageStop() {
     clearInterval(NINAAbfrage);
+    intervalRunning = false;
+    log("naaf wurde deaktiviert", 4, false);
 }
+
+/* Keine Intervalle
+* ------------------------------------------------------------------------*/
 
 var lastSeverity = [];
 
-async function playTTSQueue(title) {
+async function playTTSQueue() {
     if (!ttsForce) {
         if (ttsRunning) {
             await log(`TTS Call abgelehnt da TTS Running = ${ttsRunning}`, 2, false);
             return;
         }
     } else {
-        log("Achtung! ttsForce AKTIV! ttsRunning check ÜBERSPRUNGEN", 2, false);
+        await log("Achtung! ttsForce AKTIV! ttsRunning check �BERSPRUNGEN", 2, false);
     }
     ttsRunning = true;
 
     while (ttsQueue.length > 0) {
-        const {text, schweregrad} = ttsQueue.shift();
+        if (WarnungIssued && !ttsForce) {
+            await log(`kein shift in queue da WarnungIssued === ${WarnungIssued}`, 2, false);
+            continue;
+        }
+        const {text, schweregrad, title} = ttsQueue.shift();
+        await log(`ttsQueue.length ${ttsQueue.length}`, 4, false);
 
         if (!ttsForce) {
             if (warnRAMEntCheck(text)) {
@@ -532,7 +584,7 @@ async function playTTSQueue(title) {
                 continue;
             }
         } else if (ttsForce) {
-            await log("Achtung! ttsForce AKTIV! warnRamEntCheck ÜBERSPRUNGEN!", 2, false);
+            await log("Achtung! ttsForce AKTIV! warnRamEntCheck �BERSPRUNGEN!", 2, false);
         }
 
         if (WarnungIssued && !ttsForce) {
@@ -545,14 +597,14 @@ async function playTTSQueue(title) {
                 await log(`Severity lower oder gleich, kein TTS Override`, 3, false);
                 continue;
             }
-        } else if (ttsForce) await log(`Achtung! ttsForce AKTIV! WarningIssued check ÜBERSPRUNGEN!`, 2, false);
+        } else if (ttsForce) await log(`Achtung! ttsForce AKTIV! WarningIssued check �BERSPRUNGEN!`, 2, false);
 
         console.log(newDate2(), "[DEBUG]: Schweregrad:", schweregrad);
         console.log(newDate2(), "[DEBUG]: Transcript:", {text});
         offtts = false;
 
         await new Promise((resolve) => {
-            tts.speak(text, schweregrad, resolve, TTSoverride);
+            tts.speak(text, schweregrad, resolve, TTSoverride, testaktv);
             letzeWarnung = text;
             WarnungIssued = true;
             lastSeverity = schweregrad
@@ -565,8 +617,9 @@ async function playTTSQueue(title) {
     }
 
     ttsRunning = false;
+    ttsQueue = [];
+    await log(`ttsRunning == ${ttsRunning}`);
 }
-
 
 async function ramPush(letzeWarnung) {
     try {
@@ -584,8 +637,6 @@ async function ramPush(letzeWarnung) {
     }
 }
 
-
-
 async function WarnungIssuedTimer() {
     if (!WarnungIssued) return;
     if (timer2 >= 5) {
@@ -601,11 +652,11 @@ async function WarnungIssuedTimer() {
 
 async function severityToNumber(severity) {
     await log(`Severity to Number, Severity: ${severity}`, 4);
-    if (severity == "Extreme") {
+    if (severity === "Extreme") {
         return 4;
-    } else if (severity == "Severe") {
+    } else if (severity === "Severe") {
         return 3;
-    } else if (severity == "Moderate") {
+    } else if (severity === "Moderate") {
         return 2;
     } else {
         return 1;
@@ -625,6 +676,136 @@ process.on('unhandledRejection', async (reason) => {
     await serverStatus();
     process.exit(1);
 });
+
+async function wartung() {
+    await log(`Warnung! Wartung gestartet...`, 2, false);
+    await log("naaf wird deaktiviert", 2, false);
+    var naafStartenAmEnde = false;
+
+    if (intervalRunning) {
+        NINAautoAbfrageStop();
+        await log("naaf wurde deaktiviert", 2, false);
+        naafStartenAmEnde = true;
+    } else {
+        await log("naaf ist bereits deaktiviert", 2, false);
+    }
+
+    await log("ttsQueue wurde zur�ckgesetzt", 2, false);
+    await log("warnungsGruppen werden zur�ckgesetzt", 2, false);
+    warnungsGruppen.Extreme = [];
+    await log("warnungsGruppe Extreme wurde zur�ckgesetzt", 2, false);
+    warnungsGruppen.Severe = [];
+    await log("warnungsGruppe Severe wurde zur�ckgesetzt", 2, false);
+    warnungsGruppen.Moderate = [];
+    await log("warnungsGruppe Moderate wurde zur�ckgesetzt", 2, false);
+    warnungsGruppen.Minor = [];
+    await log("warnungsGruppe Minor wurde zur�ckgesetzt", 2, false);
+    await log(`Alle zur�ckgesetzten Variablen werden nun ausgegeben: ttsQueue ${JSON.stringify({ttsQueue})}; warnungsGruppen ${JSON.stringify(warnungsGruppen)}`, 2, false);
+    naafStartenAmEnde ? await log("naaf wird wieder gestartet", 2, false) : await log("naaf wird nicht gestartet, da es vorher nicht aktiviert wurde", 2, false);
+    naafStartenAmEnde ? NINAautoAbfrageStarten() : log("naaf wurde nicht aktiviert", 2, false);
+    await log("Wartung abgeschlossen! cmdInputErlaubt wird auf true gesetzt", 2, false);
+    cmdInputErlaubt = true;
+    await log(`Wartung abgeschlossen! cmdInputErlaubt wurde auf ${cmdInputErlaubt} gesetzt`, 2, false);
+}
+
+async function testsys() {
+    testaktv = true
+    await log("testsys called", 4, false)
+    var naafStartenAmEnde = false;
+
+    if (intervalRunning) {
+        NINAautoAbfrageStop();
+        await log("naaf wurde deaktiviert", 2, false);
+        naafStartenAmEnde = true;
+    } else {
+        await log("naaf ist bereits deaktiviert", 2, false);
+    }
+
+    var theadline = "Test des Notfall-Informations und Alarmsystems";
+    var tdescription1;
+    var tevent1;
+    var turgency;
+    var tdata = {
+        info: [
+            {
+                description: "Dies ist ein test des Notfall-Informations und Alarmsystems. Es besteht keine Gefahr. Dies ist nur ein test."
+            }
+        ]
+    }
+    var tseverity1 = "Minor";
+    var tseverity2 = "Moderate";
+    var tseverity3 = "Severe";
+    var tseverity4 = "Extreme";
+    var tinstruction = "Es besteht keine Gefahr. Dies ist nur ein Test. Es besteht keine Gefahr. Dies ist nur ein Test.";
+    var tsenderName = "Private Leitstelle";
+
+    const ttsWarnung1 = buildTTS(
+        theadline,
+        tdescription1,
+        tevent1,
+        turgency,
+        tseverity1,
+        tdata,
+        tinstruction,
+        tsenderName,
+    );
+
+    const ttsWarnung2 = buildTTS(
+        theadline,
+        tdescription1,
+        tevent1,
+        turgency,
+        tseverity2,
+        tdata,
+        tinstruction,
+        tsenderName,
+    );
+
+    const ttsWarnung3 = buildTTS(
+        theadline,
+        tdescription1,
+        tevent1,
+        turgency,
+        tseverity3,
+        tdata,
+        tinstruction,
+        tsenderName,
+    );
+
+    const ttsWarnung4 = buildTTS(
+        theadline,
+        tdescription1,
+        tevent1,
+        turgency,
+        tseverity4,
+        tdata,
+        tinstruction,
+        tsenderName,
+    );
+
+    const normalized1 = ttsWarnung1.normalize("NFC");
+    const normalized2 = ttsWarnung2.normalize("NFC");
+    const normalized3 = ttsWarnung3.normalize("NFC");
+    const normalized4 = ttsWarnung4.normalize("NFC");
+
+    await log("ttsQueue.push", 4, false);
+    ttsQueue.push({text: normalized4, schweregrad: tseverity4});
+    ttsQueue.push({text: normalized3, schweregrad: tseverity3});
+    ttsQueue.push({text: normalized2, schweregrad: tseverity2});
+    ttsQueue.push({text: normalized1, schweregrad: tseverity1});
+
+    await log("TTS Call; Durch testsys()", 4, false);
+    await playTTSQueue(theadline)
+    if (naafStartenAmEnde) {
+        NINAautoAbfrageStarten();
+        await log("NINAautoAbfrageStarten() call", 4, false);
+    } else {
+        await log(`kein NINAautoAbfrageStarten() call da: naafStartenAmEnde = ${naafStartenAmEnde}`, 4, false);
+    }
+    testaktv = false;
+}
+
+
 
 
 
