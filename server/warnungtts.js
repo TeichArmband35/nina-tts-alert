@@ -1,4 +1,6 @@
-function speak(text, schweregrad, done, TTSoverride) {
+const path = require("path");
+
+function speak(text, schweregrad, done, TTSoverride, testaktv) {
 
     function dateNew() {
         return date = new Date().toISOString();
@@ -11,7 +13,10 @@ function speak(text, schweregrad, done, TTSoverride) {
     console.log(dateNew(), "[DEBUG]: TTS Initialisierung");
 
     let gongFile;
-    if (TTSoverride) {
+    if (testaktv) {
+        gongFile = path.join(__dirname, "GongSounds/probealarmwarnung.wav");
+    }
+    else if (TTSoverride) {
         gongFile = path.join(__dirname, "GongSounds/warnungunterbrochen.wav");
     } else if (schweregrad === "Moderate" || schweregrad === "Minor") {
         gongFile = path.join(__dirname, "GongSounds/gong_moderat.wav");
@@ -31,7 +36,7 @@ function speak(text, schweregrad, done, TTSoverride) {
     const ttsBin = ".../.pyenv/shims/tts"; // Replace this with your path of the installation of tts
 
     const cmd = `"${ttsBin}" --text "${safeText}" \
---model_name "tts_models/de/thorsten/vits" \
+--model_name "tts_models/de/thorsten/tacotron2-DDC" \
 --out_path "${ttsFile}"`;
 
     exec(cmd, (err) => {
@@ -44,7 +49,7 @@ function speak(text, schweregrad, done, TTSoverride) {
         console.log(dateNew(), "[DEBUG]: TTS fertig");
 
         const wavBuffer = fs.readFileSync(ttsFile);
-        let delayMs = (TTSoverride ? 17000 : ((schweregrad == "Extreme" || schweregrad == "Severe") ? 11200 : 2500));
+        let delayMs = (testaktv ? 57000 : TTSoverride ? 17000 : ((schweregrad === "Extreme" || schweregrad === "Severe") ? 11200 : 2500));
 
         let ffmpegArgs;
 
@@ -55,31 +60,32 @@ function speak(text, schweregrad, done, TTSoverride) {
         console.log("EXISTS:", fs.existsSync(gongFile));
 
         if (gongFile && fs.existsSync(gongFile)) {
-
             const filterComplex =
-                `[0:a]adelay=${delayMs}|${delayMs}[voice];` +
-                `[1:a]volume=1.5[gong];` +
-                `[voice][gong]amix=inputs=2:duration=longest:dropout_transition=2[out]`;
-
+                `[0:a]aresample=22050,adelay=${delayMs}|${delayMs}[voice];` +
+                `[1:a]aresample=22050,volume=1.5[gong];` +
+                `[voice][gong]amix=inputs=2:duration=longest:dropout_transition=2[mixed];` +
+                `[mixed]highpass=f=400,highpass=f=400,lowpass=f=7000,lowpass=f=7000[out]`;
             ffmpegArgs = [
                 "-f", "wav", "-i", "pipe:0",
                 "-i", gongFile,
                 "-filter_complex", filterComplex,
                 "-map", "[out]",
+                "-ar", "44100",
                 "-f", "mp3",
-                "-b:a", "128k",
+                "-b:a", "64k",
                 "pipe:1"
             ];
-
         } else {
-
             ffmpegArgs = [
                 "-f", "wav", "-i", "pipe:0",
+                "-af", "highpass=f=400,highpass=f=400,lowpass=f=7000,lowpass=f=7000",
+                "-ar", "44100",
                 "-f", "mp3",
-                "-b:a", "128k",
+                "-b:a", "64k",
                 "pipe:1"
             ];
         }
+
         console.log("FFMPEG ARGS:", ffmpegArgs);
         console.log("GONG:", gongFile);
         const ffmpeg = spawn("ffmpeg", ffmpegArgs);
