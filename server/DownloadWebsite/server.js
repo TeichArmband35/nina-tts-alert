@@ -28,7 +28,6 @@ const tokens = [
 ];
 // No config behind this point, keine config nach diesem punkt leeel
 
-
 // Outputs
 const Error500 = "[ERROR]: Unbekannter Interner Serverfehler";
 
@@ -76,6 +75,7 @@ var ninattsserverStatusText = "Unknown Internal Server Error";
 
 
 app.get("/server/nina/audio/Warnungen", (req, res) => {
+  console.log("[INFO]: Get-Request: /server/nina/audio/Warnungen")
   var file = getFilePath();
   if (ninattsRunningBoolean) {
     SeverityOfWarning = severityToNumber(ninattsSeverity);
@@ -95,10 +95,13 @@ app.get("/server/nina/audio/Warnungen", (req, res) => {
 app.get("/server/nina/audio/Warnungen/Download", (req, res) => {
   var file = getFilePath();
 
+  if (file === "N/A") {
+    res.status(404).json("Keine Warnung gefunden");
+    return;
+  }
+
   res.download(file, (err) => {
-    if (file === "N/A") {
-      res.status(404).json("Keine Warnung gefunden");
-    } else if (err) {
+    if (err) {
       res.status(500).send(Error500);
       Errors.error.push(`${Error500} bei /downloadSeverExtrem`);
     }
@@ -223,5 +226,5 @@ app.get("/server/status", (req, res) => {
 
 
 // PORT
-app.listen(port, () => console.log(`SERVER: Belauscht Port ${port}`));
+app.listen(port, '0.0.0.0', () => console.log(`SERVER: Belauscht Port ${port}`));
 console.log("CMDs f�r Server:", ServerCMDs);
