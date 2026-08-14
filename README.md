@@ -64,6 +64,8 @@ errors **in English is not planned but may come in the future**.
 - `ttsovr: false`: Manually deactivates the TTS Override
 - `tts: force`: Activates TTS Force
 - `tts: dforce`: Deactivates TTS Force
+- `wart: force`: Forces an maintenance
+- `testsys`: Issues 4 test-warnings in 20 minutes (4x5)
 
 ### For ~/server/DownloadWebsite/server.js
 - `exit`: Exits the program, so you don't have to close and re-open the console
@@ -123,6 +125,9 @@ for more details).
 The TTS Override activates automatically when a new warning with a higher severity than 
 the current one has been issued for the area. It can also be activated manually 
 (see Console Commands → `ttsovr`).
+
+### Maintenance
+The program will reset itself, in order to avoid a memory leak
 
 ### TTS Cooldown
 After a warning has been processed, the TTS system will not process any other warnings 
